@@ -7,9 +7,12 @@ from .utils import extract_json
 import os
 from dotenv import load_dotenv
 
-#load_dotenv()
-# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_API_KEY=""
+#실제 작동시 보안때문에 아래코드 사용
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+
+# 위 코드 주석하고 아래에 직접 키 입력해도 됨
+#OPENAI_API_KEY=""
 loader = TextLoader("data/tarot_data.txt", encoding="utf-8")
 docs = loader.load()
 embedding = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
@@ -41,12 +44,12 @@ prompt = PromptTemplate(
 )
 
 qa = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.7),
+    llm=ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-4-turbo", temperature=0.7),
     retriever=vectordb.as_retriever(search_kwargs={"k": 2}),
     chain_type_kwargs={"prompt": prompt}
 )
 
-def get_tarot_response(question, selected_cards):
-    full_question = f"선택한 카드는 {', '.join(selected_cards)}입니다. 질문: {question}"
+def get_tarot_response(cards,question):
+    full_question = f"선택한 카드는 {', '.join(cards)}입니다. 질문: {question}"
     response = qa.run(full_question)
     return extract_json(response)

@@ -15,9 +15,11 @@ def generate():
                 birth=data.get("birth"),
                 time=data.get("time"),
                 gender=data.get("gender"),
-                ilgan=data.get("ilgan"),
-                palja=data.get("palja"),
-                oheng=data.get("oheng"),
+                ilgan=data.get("ilgan"),       # 예: "신금"
+                ilji=data.get("ilji"),         # 예: "자"
+                ilju=data.get("ilju"),         # 예: "신자"
+                oheng=data.get("oheng"),       # 예: "금 수 과다, 화 기운 부족"
+                sibsin=data.get("sibsin"),     # 예: ["편재", "정관"]
                 question=data.get("question")
             )
         elif query_type == "tarot":

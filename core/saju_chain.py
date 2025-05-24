@@ -7,12 +7,26 @@ from .utils import extract_json
 import os
 from dotenv import load_dotenv
 
-# load_dotenv()
-# OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
-OPENAI_API_KEY=""
-loader = TextLoader("data/saju_data.txt", encoding="utf-8")
-docs = loader.load()
+load_dotenv()
+OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
+#OPENAI_API_KEY=""
+
+# files = [
+#     "saju_data.txt"
+#     # "ilgan_data.txt", "ilji_data.txt", 
+#     # "oheng_data.txt", 
+#     # "sibsin_data.txt", "ilju_data.txt", "shinsal_data.txt", 
+#     # "advice_data.txt"
+# ]
+
+files=["일간_해석.txt","일주_해석.txt","일지_해석.txt","오행_해석.txt","십신_해석.txt"]
+
+docs = []
+for file in files:
+    loader = TextLoader(f"data/{file}", encoding="utf-8")
+    docs.extend(loader.load())
 embedding = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
+
 vectordb = Chroma.from_documents(docs, embedding, persist_directory="./db_saju")
 
 prompt = PromptTemplate(
@@ -33,20 +47,27 @@ prompt = PromptTemplate(
 {{
   "summary": "...",
   "advice": "...",
-  "birth_info": "1997년 5월 3일, 여성, 신금 일간",
-  "topic": "연애운",
-  "source": ["사주 인사이트"]
+  "birth_info": "...",
+  "topic": "...",
+  "source": "..."
 }}
 """
 )
 
 qa = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-3.5-turbo", temperature=0.7),
-    retriever=vectordb.as_retriever(search_kwargs={"k": 2}),
+    llm=ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-4-turbo", temperature=0.7),
+    retriever=vectordb.as_retriever(search_kwargs={"k": 5}),
     chain_type_kwargs={"prompt": prompt}
 )
 
-def get_saju_response(birth, time, gender, ilgan, palja, oheng, question):
-    full_question = f"{birth} {time} {gender}, 일간 {ilgan}, 오행 분석 {oheng}. {question}"
+
+def get_saju_response(birth, time, gender, ilgan, ilju, ilji, oheng, sibsin, question):
+    full_question = f"{birth} {time} {gender}, 일간: {ilgan}, 일주: {ilju}, 일지: {ilji}, 오행: {oheng}, 십신: {sibsin}. {question}"
     response = qa.run(full_question)
     return extract_json(response)
+
+def show_retrieved_docs(question):
+    retriever = vectordb.as_retriever(search_kwargs={"k": 5})
+    docs = retriever.get_relevant_documents(question)
+    for i, doc in enumerate(docs, 1):
+        print(f"\n 문서 {i}:\n{doc.page_content}")
