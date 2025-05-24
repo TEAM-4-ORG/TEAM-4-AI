@@ -19,8 +19,8 @@ saju_input = {
     "ilgan": "신금",
     "ilju": "신해",  
     "ilji": "해수",  
-    "oheng_analysis": "화 기운 부족, 금/수 기운 많음", 
-    "sibsin_analysis": "정관, 정인, 상관, 편재", 
+    "oheng": "화 기운 부족, 금/수 기운 많음", 
+    "sibsin": "정관, 정인, 상관, 편재", 
     "question": question
 }
 
