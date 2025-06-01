@@ -6,7 +6,7 @@ from datetime import datetime
 
 app = Flask(__name__)
 
-@app.route("/api/project/title", methods=["POST"])
+@app.route("/api/project/new", methods=["POST"])
 def generate_title():
     data = request.get_json()
     first_question = data.get("first_question")
@@ -37,7 +37,7 @@ def generate_title():
             "result": "BAD_REQUEST"
         }), 400
 
-@app.route("/api/consult/saju", methods=["POST"])
+@app.route("/api/saju/consult", methods=["POST"])
 def saju_consult():
     data = request.get_json()
     question = data.get("question")
@@ -55,14 +55,16 @@ def saju_consult():
         oheng = ", ".join([f"{k} {v}" for k, v in five_elements.items()])
 
         result = get_saju_response(
-            birth=birth,
-            time=time,
-            gender=gender,
-            ilgan=ilgan,
-            palja="",  # 생략 가능
-            oheng=oheng,
-            question=question
-        )
+    birth=birth,
+    time=time,
+    gender=gender,
+    ilgan=ilgan,
+    ilju="",     
+    ilji="",     # 필요 시 추가
+    oheng=oheng,
+    sibsin="",   # 필요 시 추가
+    question=question
+)
 
         return jsonify({
             "isSuccess": True,
@@ -84,7 +86,7 @@ def saju_consult():
             "result": "BAD_REQUEST"
         }), 400
 
-@app.route("/api/consult/tarot", methods=["POST"])
+@app.route("/api/tarot/consult", methods=["POST"])
 def tarot_consult():
     data = request.get_json()
     question = data.get("question")
@@ -122,4 +124,4 @@ def tarot_consult():
         }), 400
 
 if __name__ == "__main__":
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=8080)
