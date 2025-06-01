@@ -13,18 +13,23 @@ OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # 위 코드 주석하고 아래에 직접 키 입력해도 됨
 #OPENAI_API_KEY=""
-loader = TextLoader("data/tarot_data.txt", encoding="utf-8")
-docs = loader.load()
+files=["타로입문서.txt","암기할 필요 없는 타로.txt"]
+
+docs = []
+for file in files:
+    loader = TextLoader(f"data/{file}", encoding="utf-8")
+    docs.extend(loader.load())
 embedding = OpenAIEmbeddings(openai_api_key=OPENAI_API_KEY)
 vectordb = Chroma.from_documents(docs, embedding, persist_directory="./db_tarot")
 
 prompt = PromptTemplate(
     input_variables=["context", "question"],
     template="""
-당신은 타로 전문 AI 상담가입니다.
-아래의 문서와 질문, 카드 정보를 참고하여, 타로 해석 결과를 제공하세요.  
-반드시 JSON 형식으로 응답하고, 문서 출처도 포함하세요.  
-텍스트 설명 없이 순수 JSON만 출력해 주세요.
+당신은 타로 전문가 AI입니다.
+
+다음 문서와 질문을 참고하여 사용자의 질문에 답변을 제공하세요.  
+결과는 JSON 형식으로 출력하고, 반드시 마크다운 형식으로 출처를 포함하세요.  
+텍스트 설명 없이 JSON만 출력해 주세요.
 
 [문서]
 {context}
@@ -38,7 +43,7 @@ prompt = PromptTemplate(
   "advice": "...",
   "card_used": ["The Lovers", "The Moon"],
   "topic": "연애운",
-  "source": ["타로 해석 문서"]
+  "source": ["타로입문서"]
 }}
 """
 )

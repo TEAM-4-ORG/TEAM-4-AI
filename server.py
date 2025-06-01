@@ -1,39 +1,125 @@
 from flask import Flask, request, jsonify
 from core.saju_chain import get_saju_response
 from core.tarot_chain import get_tarot_response
+from core.title_summary_chain import get_title_summary  # LLM 기반 요약 함수 추가
+from datetime import datetime
 
 app = Flask(__name__)
 
-@app.route("/generate", methods=["POST"])
-def generate():
+@app.route("/api/project/title", methods=["POST"])
+def generate_title():
     data = request.get_json()
-    query_type = data.get("type")  # 'saju' or 'tarot'
+    first_question = data.get("first_question")
+
+    if not first_question:
+        return jsonify({
+            "isSuccess": False,
+            "code": "COMMON4000",
+            "message": "입력되지 않은 필수값이 있습니다.",
+            "result": "BAD_REQUEST"
+        }), 400
 
     try:
-        if query_type == "saju":
-            result = get_saju_response(
-                birth=data.get("birth"),
-                time=data.get("time"),
-                gender=data.get("gender"),
-                ilgan=data.get("ilgan"),       # 예: "신금"
-                ilji=data.get("ilji"),         # 예: "자"
-                ilju=data.get("ilju"),         # 예: "신자"
-                oheng=data.get("oheng"),       # 예: "금 수 과다, 화 기운 부족"
-                sibsin=data.get("sibsin"),     # 예: ["편재", "정관"]
-                question=data.get("question")
-            )
-        elif query_type == "tarot":
-            result = get_tarot_response(
-                question=data.get("question"),
-                selected_cards=data.get("cards")  # 예: ["The Lovers", "The Moon"]
-            )
-        else:
-            return jsonify({"error": "Invalid type: 'saju' or 'tarot' expected."}), 400
+        title = get_title_summary(first_question)  # LLM을 활용한 제목 요약
+        return jsonify({
+            "isSuccess": True,
+            "code": "COMMON200",
+            "message": "요청에 성공했습니다.",
+            "result": {
+                "title": title
+            }
+        })
+    except Exception as e:
+        return jsonify({
+            "isSuccess": False,
+            "code": "COMMON4000",
+            "message": str(e),
+            "result": "BAD_REQUEST"
+        }), 400
 
-        return jsonify(result if result else {"error": "Invalid response format"})
+@app.route("/api/consult/saju", methods=["POST"])
+def saju_consult():
+    data = request.get_json()
+    question = data.get("question")
+    sajuData = data.get("sajuData")
+
+    try:
+        birth_date = sajuData["basicInfo"]["birthDate"]
+        birth = f"{birth_date['year']}년 {birth_date['month']}월 {birth_date['day']}일"
+        time = birth_date["time"]
+        gender = sajuData["basicInfo"]["gender"]
+        ilgan = sajuData["sajuPillars"]["dayPillar"]["sky"]["name"] + "일간"
+
+        # 오행 분석 문자열 예시
+        five_elements = sajuData["fiveElements"]
+        oheng = ", ".join([f"{k} {v}" for k, v in five_elements.items()])
+
+        result = get_saju_response(
+            birth=birth,
+            time=time,
+            gender=gender,
+            ilgan=ilgan,
+            palja="",  # 생략 가능
+            oheng=oheng,
+            question=question
+        )
+
+        return jsonify({
+            "isSuccess": True,
+            "code": "COMMON200",
+            "message": "요청에 성공했습니다.",
+            "result": {
+                "consultation_id": 3,
+                "question": question,
+                "result": result.get("summary", "결과 없음") + "\n\n📚 **출처**: " + ", ".join(result.get("source", [])),
+                "created_at": datetime.now().isoformat(timespec='minutes')
+            }
+        })
 
     except Exception as e:
-        return jsonify({"error": str(e)}), 500
+        return jsonify({
+            "isSuccess": False,
+            "code": "COMMON4000",
+            "message": str(e),
+            "result": "BAD_REQUEST"
+        }), 400
+
+@app.route("/api/consult/tarot", methods=["POST"])
+def tarot_consult():
+    data = request.get_json()
+    question = data.get("question")
+    cards = data.get("cards")
+
+    if not question or not cards:
+        return jsonify({
+            "isSuccess": False,
+            "code": "COMMON4000",
+            "message": "입력되지 않은 필수값이 있습니다.",
+            "result": "BAD_REQUEST"
+        }), 400
+
+    try:
+        result = get_tarot_response(selected_cards=cards, question=question)
+
+        return jsonify({
+            "isSuccess": True,
+            "code": "COMMON200",
+            "message": "요청에 성공했습니다.",
+            "result": {
+                "consultation_id": 5,
+                "question": question,
+                "result": result.get("summary", "결과 없음") + "\n\n📚 **출처**: " + ", ".join(result.get("source", [])),
+                "created_at": datetime.now().isoformat(timespec='minutes')
+            }
+        })
+
+    except Exception as e:
+        return jsonify({
+            "isSuccess": False,
+            "code": "COMMON4000",
+            "message": str(e),
+            "result": "BAD_REQUEST"
+        }), 400
 
 if __name__ == "__main__":
     app.run(debug=True, port=5000)
