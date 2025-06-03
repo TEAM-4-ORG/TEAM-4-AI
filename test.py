@@ -61,7 +61,7 @@ def test_saju_consult_success():
     headers = {"Content-Type": "application/json"}
     payload = {
         "question": "제 올해 사업운은 어떤가요?",
-        "saju_data": {
+        "sajuData": {
             "basicInfo": {
                 "birthDate": {"year": 1990, "month": 5, "day": 10, "time": "오전 10시 30분"},
                 "gender": "남"
@@ -112,7 +112,7 @@ def test_saju_consult_invalid_data():
     headers = {"Content-Type": "application/json"}
     payload = {
         "question": "제 사주 좀 봐주세요.",
-        "saju_data": {
+        "sajuData": {
             "basicInfo": {
                 # "birthDate": {"year": 1990, "month": 5, "day": 10, "time": "오전 10시 30분"}, # 누락
                 "gender": "남"
@@ -140,7 +140,7 @@ def test_saju_consult_invalid_data():
         pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.json()}")
 
 
-        
+
 # /api/tarot/consult 엔드포인트 테스트
 def test_tarot_consult_success():
     """
