@@ -37,34 +37,32 @@ def generate_title():
             "result": "BAD_REQUEST"
         }), 400
 
-@app.route("/api/saju/consult", methods=["POST"])
+
+@app.route("/api/saju/content", methods=["POST"])
 def saju_consult():
     data = request.get_json()
     question = data.get("question")
-    sajuData = data.get("sajuData")
+    saju_data = data.get("sajuData")
 
     try:
-        birth_date = sajuData["basicInfo"]["birthDate"]
+        birth_date = saju_data["basicInfo"]["birthDate"]
         birth = f"{birth_date['year']}년 {birth_date['month']}월 {birth_date['day']}일"
         time = birth_date["time"]
-        gender = sajuData["basicInfo"]["gender"]
-        ilgan = sajuData["sajuPillars"]["dayPillar"]["sky"]["name"] + "일간"
+        gender = saju_data["basicInfo"]["gender"]
 
-        # 오행 분석 문자열 예시
-        five_elements = sajuData["fiveElements"]
-        oheng = ", ".join([f"{k} {v}" for k, v in five_elements.items()])
+        sajuPillars = saju_data["sajuPillars"]
+        fiveElements = saju_data["fiveElements"]
+        analysis = saju_data.get("analysis", {})
 
         result = get_saju_response(
-    birth=birth,
-    time=time,
-    gender=gender,
-    ilgan=ilgan,
-    ilju="",     
-    ilji="",     # 필요 시 추가
-    oheng=oheng,
-    sibsin="",   # 필요 시 추가
-    question=question
-)
+            birth=birth,
+            time=time,
+            gender=gender,
+            sajuPillars=sajuPillars,
+            fiveElements=fiveElements,
+            analysis=analysis,
+            question=question
+        )
 
         return jsonify({
             "isSuccess": True,
@@ -73,7 +71,7 @@ def saju_consult():
             "result": {
                 "consultation_id": 3,
                 "question": question,
-                "result": result.get("summary", "결과 없음") + "\n\n📚 **출처**: " + ", ".join(result.get("source", [])),
+                "result": result.get("summary", "") + "\n\n" + result.get("advice", "") + "\n\n📚 **출처**: " + ", ".join(result.get("source", [])),
                 "created_at": datetime.now().isoformat(timespec='minutes')
             }
         })
@@ -85,6 +83,7 @@ def saju_consult():
             "message": str(e),
             "result": "BAD_REQUEST"
         }), 400
+
 
 @app.route("/api/tarot/consult", methods=["POST"])
 def tarot_consult():

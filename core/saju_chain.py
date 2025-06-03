@@ -59,8 +59,36 @@ qa = RetrievalQA.from_chain_type(
 )
 
 
-def get_saju_response(birth, time, gender, ilgan, ilju, ilji, oheng, sibsin, question):
-    full_question = f"{birth} {time} {gender}, 일간: {ilgan}, 일주: {ilju}, 일지: {ilji}, 오행: {oheng}, 십신: {sibsin}. {question}"
+def get_saju_response(birth, time, gender, sajuPillars, fiveElements, analysis, question):
+    analysis = analysis or {}
+    year = sajuPillars["yearPillar"]
+    month = sajuPillars["monthPillar"]
+    day = sajuPillars["dayPillar"]
+    hour = sajuPillars["timePillar"]
+
+    decades = analysis.get("decades", {}).get("decades", [])
+    decades_str = " / ".join([
+        f"{d['year']}년: {d['sky']['name']}({d['sky']['code']})-{d['ground']['name']}({d['ground']['code']})"
+        for d in decades
+    ]) if decades else ""
+
+    question_context = f"생년월일: {birth} {time}, 성별: {gender}\n"
+    question_context += f"연주: {year['sky']['name']}({year['sky']['code']})-{year['ground']['name']}({year['ground']['code']})\n"
+    question_context += f"월주: {month['sky']['name']}({month['sky']['code']})-{month['ground']['name']}({month['ground']['code']})\n"
+    question_context += f"일주: {day['sky']['name']}({day['sky']['code']})-{day['ground']['name']}({day['ground']['code']})\n"
+    question_context += f"시주: {hour['sky']['name']}({hour['sky']['code']})-{hour['ground']['name']}({hour['ground']['code']})\n"
+    question_context += f"오행 분포: {', '.join([f'{k} {v}' for k, v in fiveElements.items()])}\n"
+
+    if "hop" in analysis:
+        hops = analysis["hop"]
+        question_context += f"합(합화/합토 등): {hops.get('skyHop', []) + hops.get('bangHop', [])}\n"
+    if "chung" in analysis:
+        chungs = analysis["chung"]
+        question_context += f"충(천간/지지 충): {chungs.get('skyChung', []) + chungs.get('groundChung', [])}\n"
+    if decades_str:
+        question_context += f"대운 흐름: {decades_str}\n"
+
+    full_question = f"{question_context}\n질문: {question}"
     response = qa.run(full_question)
     return extract_json(response)
 
