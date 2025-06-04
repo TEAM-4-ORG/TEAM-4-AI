@@ -60,6 +60,15 @@ qa = RetrievalQA.from_chain_type(
 
 
 def get_saju_response(birth, time, gender, sajuPillars, fiveElements, analysis, question):
+    print("\n--- get_saju_response Input Parameters ---")
+    print(f"birth: {birth}")
+    print(f"time: {time}")
+    print(f"gender: {gender}")
+    print(f"sajuPillars: {sajuPillars}")
+    print(f"fiveElements: {fiveElements}")
+    print(f"analysis: {analysis}")
+    print(f"question: {question}")
+    print("-------------------------------------------\n")
     analysis = analysis or {}
     year = sajuPillars["yearPillar"]
     month = sajuPillars["monthPillar"]
@@ -81,7 +90,19 @@ def get_saju_response(birth, time, gender, sajuPillars, fiveElements, analysis, 
 
     if "hop" in analysis:
         hops = analysis["hop"]
-        question_context += f"합(합화/합토 등): {hops.get('skyHop', []) + hops.get('bangHop', [])}\n"
+        all_hops = []
+        if hops.get('skyHop'):
+            all_hops.extend(hops['skyHop'])
+        if hops.get('bangHop'):
+            all_hops.extend(hops['bangHop'])
+        if hops.get('somHop'): # somHop이 null이 아닌 경우만 추가
+            all_hops.append(hops['somHop'])
+        if hops.get('banHop'):
+            all_hops.extend(hops['banHop'])
+        if hops.get('sixHop'):
+            all_hops.extend(hops['sixHop'])
+        if all_hops: # 합 정보가 있을 경우에만 추가
+            question_context += f"합: {', '.join(all_hops)}\n"
     if "chung" in analysis:
         chungs = analysis["chung"]
         question_context += f"충(천간/지지 충): {chungs.get('skyChung', []) + chungs.get('groundChung', [])}\n"
@@ -89,6 +110,8 @@ def get_saju_response(birth, time, gender, sajuPillars, fiveElements, analysis, 
         question_context += f"대운 흐름: {decades_str}\n"
 
     full_question = f"{question_context}\n질문: {question}"
+    print(f"\n--- Full Question sent to LLM ---\n{full_question}\n-----------------------------------\n") # 이 라인을 추가
+
     response = qa.run(full_question)
     return extract_json(response)
 
