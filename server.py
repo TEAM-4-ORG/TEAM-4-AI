@@ -38,19 +38,18 @@ def generate_title():
         }), 400
 
 
-@app.route("/api/saju/content", methods=["POST"])
+@app.route("/api/saju/consult", methods=["POST"])
 def saju_consult():
     data = request.get_json()
     question = data.get("question")
     saju_data = data.get("sajuData")
-
     try:
         birth_date = saju_data["basicInfo"]["birthDate"]
+
         # 'birth' 문자열을 파싱하여 년, 월, 일을 추출하는 수정된 로직
         birth_str = birth_date["birth"] # 예: "2000-08-24"
         parsed_birth = datetime.strptime(birth_str, "%Y-%m-%d")
         birth = f"{parsed_birth.year}년 {parsed_birth.month}월 {parsed_birth.day}일"
-
         time = birth_date["time"]
         gender = saju_data["basicInfo"]["gender"]
 

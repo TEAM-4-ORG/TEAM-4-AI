@@ -52,12 +52,12 @@ def test_generate_title_missing_question():
         pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.json()}")
 
 
-# /api/saju/content 엔드포인트 테스트
+# /api/saju/consult 엔드포인트 테스트
 def test_saju_consult_success():
     """
     유효한 사주 데이터로 사주 상담 요청 성공 테스트
     """
-    url = f"{BASE_URL}/api/saju/content"
+    url = f"{BASE_URL}/api/saju/consult"
     headers = {"Content-Type": "application/json"}
     payload = {
         "question": "제 올해 사업운은 어떤가요?",
