@@ -2,7 +2,7 @@ import requests
 import pytest
 import json
 
-BASE_URL = "http://127.0.0.1:8080" # Flask 서버 주소 및 포트
+BASE_URL = "http://127.0.0.1:5000" # Flask 서버 주소 및 포트
 
 # /api/project/new 엔드포인트 테스트
 def test_generate_title_success():
