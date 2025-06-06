@@ -12,7 +12,7 @@ load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
 # 문서 불러오기 및 분할
-files = ["사주 인사이트.txt", "사주혁명.txt"]
+files = ["사주 인사이트.txt", "사주혁명.txt","동양미래예측학 석하명리의 일간 해석방법에 관한 연구.txt","타로와 사주명리학 신살의 상관 고찰.txt"]
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
@@ -75,16 +75,16 @@ qa = RetrievalQA.from_chain_type(
 
 
 def get_saju_response(birth, time, gender, sajuPillars, fiveElements, analysis, question):
-    print("\n--- get_saju_response Input Parameters ---")
-    print(f"birth: {birth}")
-    print(f"time: {time}")
-    print(f"gender: {gender}")
-    print(f"sajuPillars: {sajuPillars}")
-    print(f"fiveElements: {fiveElements}")
-    print(f"analysis: {analysis}")
-    print(f"question: {question}")
-    print("-------------------------------------------\n")
-    analysis = analysis or {}
+    # print("\n--- get_saju_response Input Parameters ---")
+    # print(f"birth: {birth}")
+    # print(f"time: {time}")
+    # print(f"gender: {gender}")
+    # print(f"sajuPillars: {sajuPillars}")
+    # print(f"fiveElements: {fiveElements}")
+    # print(f"analysis: {analysis}")
+    # print(f"question: {question}")
+    # print("-------------------------------------------\n")
+    # analysis = analysis or {}
     year = sajuPillars["yearPillar"]
     month = sajuPillars["monthPillar"]
     day = sajuPillars["dayPillar"]
@@ -125,7 +125,7 @@ def get_saju_response(birth, time, gender, sajuPillars, fiveElements, analysis, 
         question_context += f"대운 흐름: {decades_str}\n"
 
     full_question = f"{question_context}\n질문: {question}"
-    print(f"\n--- Full Question sent to LLM ---\n{full_question}\n-----------------------------------\n") # 이 라인을 추가
+#    print(f"\n--- Full Question sent to LLM ---\n{full_question}\n-----------------------------------\n") # 이 라인을 추가
 
     response = qa.run(full_question)
     return extract_json(response)
