@@ -10,7 +10,7 @@ from dotenv import load_dotenv
 load_dotenv()
 OPENAI_API_KEY = os.getenv("OPENAI_API_KEY")
 
-files = ["암기할 필요 없는 타로.txt","타로입문서.txt","타로와 사주명리학 신살의 상관 고찰"]
+files = ["암기할 필요 없는 타로.txt","타로입문서.txt","타로와 사주명리학 신살의 상관 고찰.txt"]
 
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 
