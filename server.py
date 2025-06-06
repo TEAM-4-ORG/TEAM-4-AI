@@ -38,15 +38,14 @@ def generate_title():
         }), 400
 
 
-@app.route("/api/saju/content", methods=["POST"])
+@app.route("/api/saju/consult", methods=["POST"])
 def saju_consult():
     data = request.get_json()
     question = data.get("question")
     saju_data = data.get("sajuData")
-
     try:
         birth_date = saju_data["basicInfo"]["birthDate"]
-        birth = f"{birth_date['year']}년 {birth_date['month']}월 {birth_date['day']}일"
+        birth = birth_date["birth"]
         time = birth_date["time"]
         gender = saju_data["basicInfo"]["gender"]
 
