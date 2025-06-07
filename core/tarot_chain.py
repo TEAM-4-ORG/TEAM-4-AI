@@ -55,7 +55,7 @@ prompt = PromptTemplate(
 )
 
 qa = RetrievalQA.from_chain_type(
-    llm=ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-4-turbo", temperature=0.7),
+    llm=ChatOpenAI(openai_api_key=OPENAI_API_KEY, model_name="gpt-4o", temperature=0.7),
     retriever=vectordb.as_retriever(search_kwargs={"k": 5}),
     chain_type_kwargs={"prompt": prompt}
 )
