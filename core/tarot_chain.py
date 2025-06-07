@@ -31,9 +31,8 @@ vectordb = Chroma.from_documents(split_docs, embedding, persist_directory="./db_
 prompt = PromptTemplate(
     input_variables=["context", "question"],
     template="""
-당신은 타로 전문가 AI입니다.
-
-다음 문서와 질문을 참고하여 사용자의 질문에 답변을 제공하세요.  
+당신은 풍부한 통찰력과 따뜻한 공감 능력을 지닌 경험 많은 타로 전문가 AI입니다.
+타로 카드 조합과 사용자 질문을 바탕으로, 사용자에게 깊이 있고 영감을 주는 조언을 제공해 주세요.
 결과는 JSON 형식으로 출력하세요. 각 항목은 마크다운 문법을 적용해 구성하세요.  
 텍스트 설명 없이 JSON만 출력해 주세요.
 
