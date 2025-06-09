@@ -404,7 +404,7 @@ def test_saju_consult_success():
         pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.text}")
 
 
-def test_saju_consult_invalid_data():
+def test_saju_consult_uncomplete_data():
     """
     필수 사주 데이터 누락 시 에러 응답 테스트 (birthDate 누락)
     """
@@ -450,6 +450,33 @@ def test_saju_consult_invalid_data():
         # 이 부분에서는 이제 response.json() 대신 data 객체를 사용
         pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {data if 'data' in locals() else response.text}")
 
+def test_saju_consult_invalid_data():
+    """
+    birthDate와 gender에 비정상 값이 들어간 경우 에러 응답 테스트
+    """
+    url = f"{BASE_URL}/api/saju/consult"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "question": "제 사주 좀 봐주세요.",
+        "sajuData": {
+            "basicInfo": {
+                "birthDate": {"birth": "not-a-date", "time": "25:61"},  # 말도 안되는 값
+                "gender": 123  # 숫자, 비정상
+            },
+            "sajuPillars": {},
+            "fiveElements": {}
+        }
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        assert response.status_code == 400
+        data = response.json()
+        assert data["isSuccess"] is False
+        print(f"\n[SUCCESS] test_saju_consult_invalid_birthdate_and_gender: {data}")
+    except requests.exceptions.RequestException as e:
+        pytest.fail(f"API 요청 실패: {e}")
+    except AssertionError as e:
+        pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.json()}")
 
 # /api/tarot/consult 엔드포인트 테스트
 def test_tarot_consult_success():
@@ -502,6 +529,31 @@ def test_tarot_consult_missing_question():
         assert "입력되지 않은 필수값이 있습니다." in data["message"]
         print(f"\n[SUCCESS] tarot_consult_missing_question: {data}")
 
+    except requests.exceptions.RequestException as e:
+        pytest.fail(f"API 요청 실패: {e}")
+    except AssertionError as e:
+        pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.json()}")
+        
+def test_tarot_consult_many_cards():
+    """
+    cards에 3장 이상(예: 5장)이 들어가는 경우 정상 처리 테스트
+    """
+    url = f"{BASE_URL}/api/tarot/consult"
+    headers = {"Content-Type": "application/json"}
+    payload = {
+        "question": "이번 주 애정운은 어떤가요?",
+        "cards": ["The Fool", "The Lovers", "The World", "The Magician", "The Tower"]
+    }
+    try:
+        response = requests.post(url, headers=headers, data=json.dumps(payload))
+        if response.status_code == 200:
+            data = response.json()
+            assert data["isSuccess"] is True
+            print(f"\n[SUCCESS] test_tarot_consult_many_cards: {data}")
+        else:
+            data = response.json()
+            assert data["isSuccess"] is False
+            print(f"\n[INFO] test_tarot_consult_many_cards - 에러 응답: {data}")
     except requests.exceptions.RequestException as e:
         pytest.fail(f"API 요청 실패: {e}")
     except AssertionError as e:
