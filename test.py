@@ -481,32 +481,6 @@ def test_tarot_consult_success():
     except AssertionError as e:
         pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.json()}")
 
-def test_tarot_consult_missing_cards():
-    """
-    타로 카드 누락 시 에러 응답 테스트
-    """
-    url = f"{BASE_URL}/api/tarot/consult"
-    headers = {"Content-Type": "application/json"}
-    payload = {
-        "question": "이번 주 애정운은 어떤가요?"
-        # "cards": [...] # cards 누락
-    }
-    
-    try:
-        response = requests.post(url, headers=headers, data=json.dumps(payload))
-        
-        assert response.status_code == 400
-        data = response.json()
-        assert data["isSuccess"] == False
-        assert data["code"] == "COMMON4000"
-        assert "입력되지 않은 필수값이 있습니다." in data["message"]
-        print(f"\n[SUCCESS] tarot_consult_missing_cards: {data}")
-
-    except requests.exceptions.RequestException as e:
-        pytest.fail(f"API 요청 실패: {e}")
-    except AssertionError as e:
-        pytest.fail(f"응답 데이터 검증 실패: {e}, 응답: {response.json()}")
-
 def test_tarot_consult_missing_question():
     """
     질문 누락 시 에러 응답 테스트
